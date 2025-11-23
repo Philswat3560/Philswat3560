@@ -26,7 +26,7 @@
 
 <!-- Action Buttons -->
 <p align="center">
-  <a href="/" target="_blank" rel="noopener noreferrer">
+  <a href="https://philswat3560.github.io/Philswat3560/" target="_blank" rel="noopener noreferrer">
     <img title="OPEN PORTAL" src="https://img.shields.io/badge/🚀_OPEN_PORTAL-000000?style=for-the-badge&logo=html5&logoColor=white&color=00FFFF" width="260" height="50"/>
   </a>
   <a href="https://philswat3560.github.io/Philswat3560/about.html" target="_blank" rel="noopener noreferrer">
