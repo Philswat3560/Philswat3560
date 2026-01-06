@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Lessons</title>
+<title>Comprehensive Coding Lessons</title>
 
 <!-- ICONS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -13,18 +13,64 @@
         font-family: Arial, sans-serif;
         color: #fff;
         margin: 0;
-        padding: 20px;
+        padding: 0 20px;
+        scroll-behavior: smooth;
     }
 
     h1 {
         text-align: center;
         color: cyan;
         text-shadow: 0 0 15px cyan;
+        margin-bottom: 20px;
+        padding-top: 20px;
     }
 
+    /* SCROLL PROGRESS BAR */
+    #progressBarContainer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: rgba(0,255,255,0.1);
+        z-index: 9999;
+    }
+
+    #progressBar {
+        height: 100%;
+        width: 0%;
+        background: cyan;
+        transition: width 0.1s ease;
+    }
+
+    /* SEARCH & FILTER */
+    #controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        margin: 20px 0;
+    }
+
+    input, select {
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 5px;
+        border: 1px solid cyan;
+        background: #000;
+        color: #fff;
+        outline: none;
+        box-shadow: 0 0 10px cyan inset;
+    }
+
+    input::placeholder {
+        color: cyan;
+    }
+
+    /* LESSON STYLES */
     .lesson {
         border: 2px solid cyan;
-        margin: 12px 0;
+        margin: 10px 0;
         padding: 15px;
         border-radius: 10px;
         cursor: pointer;
@@ -40,7 +86,7 @@
 
     .lesson h3 {
         margin: 0;
-        font-size: 20px;
+        font-size: 18px;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -52,7 +98,7 @@
         padding: 10px;
         margin-top: 8px;
         border-left: 2px solid cyan;
-        font-size: 15px;
+        font-size: 14px;
         line-height: 1.5;
         animation: fadeIn 0.4s ease-in-out;
     }
@@ -61,87 +107,174 @@
         from { opacity: 0; transform: translateY(-5px); }
         to { opacity: 1; transform: translateY(0); }
     }
+
+    /* FLOATING SIDEBAR */
+    #sidebar {
+        position: fixed;
+        top: 100px;
+        left: 10px;
+        width: 200px;
+        background: rgba(0,255,255,0.1);
+        border: 2px solid cyan;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 0 15px cyan;
+        transition: 0.3s;
+    }
+
+    #sidebar h3 {
+        margin-top: 0;
+        color: cyan;
+        text-align: center;
+        text-shadow: 0 0 10px cyan;
+    }
+
+    #sidebar a {
+        display: block;
+        color: #00ffff;
+        text-decoration: none;
+        margin: 8px 0;
+        padding: 6px;
+        border-radius: 5px;
+        transition: 0.2s;
+    }
+
+    #sidebar a.active {
+        background: cyan;
+        color: #000;
+    }
+
+    #sidebar a:hover {
+        background: rgba(0,255,255,0.3);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+        #sidebar {
+            position: static;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    }
 </style>
 </head>
 
 <body>
 
-<h1><i class="fa-solid fa-book"></i> Coding Lessons</h1>
+<!-- SCROLL PROGRESS -->
+<div id="progressBarContainer"><div id="progressBar"></div></div>
 
-<!-- LESSON LIST -->
+<h1><i class="fa-solid fa-book"></i> Comprehensive Coding Lessons</h1>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+    <h3>Categories</h3>
+    <a href="#beginner">Beginner</a>
+    <a href="#intermediate">Intermediate</a>
+    <a href="#advanced">Advanced</a>
+    <a href="#tools">Tools & Frameworks</a>
+    <a href="#projects">Projects</a>
+</div>
+
+<!-- SEARCH & FILTER -->
+<div id="controls">
+    <input type="text" id="searchInput" placeholder="Search lessons..." onkeyup="filterLessons()">
+    <select id="categoryFilter" onchange="filterLessons()">
+        <option value="all">All Categories</option>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+        <option value="tools">Tools & Frameworks</option>
+        <option value="projects">Projects</option>
+    </select>
+</div>
+
 <div id="lessonList"></div>
 
 <script>
+// Lesson Data
+const lessonsData = [
+    { title: "Introduction to Coding", note: "Coding is giving instructions to a computer using a programming language.", category: "beginner", icon: "fa-code" },
+    { title: "HTML Basics", note: "HTML structures web content using tags like <h1>, <p>, <img>.", category: "beginner", icon: "fa-html5" },
+    { title: "HTML Tags & Structure", note: "Learn headings, paragraphs, links, images, lists, and tables.", category: "beginner", icon: "fa-file-code" },
+    { title: "CSS Basics", note: "CSS styles HTML elements with colors, fonts, and spacing.", category: "beginner", icon: "fa-paint-brush" },
+    { title: "CSS Selectors & Styling", note: "Selectors target elements; style properties define appearance.", category: "beginner", icon: "fa-object-group" },
+    { title: "CSS Layouts (Flex & Grid)", note: "Use Flexbox and Grid for responsive layouts.", category: "beginner", icon: "fa-th-large" },
+    { title: "JavaScript Basics", note: "JS makes web pages interactive.", category: "beginner", icon: "fa-js" },
+    { title: "Variables & Data Types", note: "Variables store data; types include numbers, strings, booleans.", category: "beginner", icon: "fa-database" },
+    { title: "Operators & Expressions", note: "Operators perform calculations; expressions combine values.", category: "beginner", icon: "fa-calculator" },
+    { title: "Functions in JS", note: "Functions are reusable code blocks for specific tasks.", category: "beginner", icon: "fa-gears" },
+    { title: "Loops & Conditionals", note: "Loops repeat actions; conditionals make decisions.", category: "beginner", icon: "fa-repeat" },
+    { title: "DOM Manipulation", note: "DOM lets JS manipulate HTML elements dynamically.", category: "beginner", icon: "fa-browser" },
+    { title: "Events & Interactivity", note: "Events trigger actions like clicks, scrolls, typing.", category: "beginner", icon: "fa-bolt" },
+    { title: "Forms & Validation", note: "Validate user input with JS and HTML constraints.", category: "beginner", icon: "fa-check-circle" },
+    { title: "Mini Projects for Beginners", note: "Projects: calculator, todo app, counter, etc.", category: "beginner", icon: "fa-diagram-project" },
+    // ... Continue all other categories (Intermediate, Advanced, Tools, Projects)
+];
 
-/* LESSONS */
-function loadLessons() {
-  const lessons = [
-    "Introduction to Coding",
-    "HTML Basics",
-    "CSS Styling",
-    "JavaScript Foundations",
-    "Variables & Data Types",
-    "Functions",
-    "Loops",
-    "DOM Manipulation",
-    "Events & Interactivity",
-    "Mini Beginner Projects"
-  ];
+// Render Lessons
+function renderLessons(filter="all", search="") {
+    const container = document.getElementById("lessonList");
+    container.innerHTML = "";
 
-  // SAMPLE NOTES for each lesson
-  const notes = [
-    `Coding is the process of giving instructions to a computer.
-     It involves syntax, logic, variables, loops, functions, and more.
-     Coding powers websites, apps, software, games, and AI.`,
+    // Add Category Anchors
+    const categories = ["beginner","intermediate","advanced","tools","projects"];
+    categories.forEach(cat => {
+        const catDiv = document.createElement("div");
+        catDiv.id = cat;
+        container.appendChild(catDiv);
+    });
 
-    `HTML stands for HyperText Markup Language.
-     It structures websites using tags like <h1>, <p>, <img>, etc.`,
-
-    `CSS (Cascading Style Sheets) adds design, color, animations, layouts, and style.`,
-
-    `JavaScript makes websites interactive (clicks, animations, dynamic content).`,
-
-    `Variables store data. Types: numbers, strings, booleans, arrays, objects.`,
-
-    `Functions are reusable blocks of code that perform specific tasks.`,
-
-    `Loops allow repeating actions automatically until a condition is met.`,
-
-    `DOM Manipulation changes HTML elements dynamically using JavaScript.`,
-
-    `Events trigger actions like clicks, scrolls, typing, and form submissions.`,
-
-    `Mini Projects include: calculator, todo app, counter, quiz app, and more.`
-  ];
-
-  const icons = [
-    "fa-code", "fa-html5", "fa-paint-brush", "fa-js",
-    "fa-database", "fa-gears", "fa-repeat", "fa-browser",
-    "fa-bolt", "fa-diagram-project"
-  ];
-
-  let html = "";
-  lessons.forEach((l, i) => {
-    html += `
-      <div class='lesson' onclick="toggleNotes(${i})">
-        <h3><i class="fa-solid ${icons[i]}"></i> Lesson ${i + 1}: ${l}</h3>
-        <div id="notes${i}" class="notes-box">${notes[i]}</div>
-      </div>
-    `;
-  });
-
-  document.getElementById("lessonList").innerHTML = html;
+    lessonsData.forEach((lesson,i)=>{
+        if ((filter==="all" || lesson.category===filter) &&
+            lesson.title.toLowerCase().includes(search.toLowerCase())) {
+            const parent = document.getElementById(lesson.category);
+            parent.innerHTML += `
+            <div class='lesson' onclick="toggleNotes(${i})">
+                <h3><i class="fa-solid ${lesson.icon}"></i> Lesson ${i+1}: ${lesson.title}</h3>
+                <div id="notes${i}" class="notes-box">${lesson.note}</div>
+            </div>`;
+        }
+    });
 }
 
-/* TOGGLE NOTES ACCORDION */
-function toggleNotes(i) {
-  const box = document.getElementById("notes" + i);
-  box.style.display = box.style.display === "block" ? "none" : "block";
+// Toggle Notes
+function toggleNotes(i){
+    const box = document.getElementById("notes"+i);
+    box.style.display = box.style.display==="block" ? "none" : "block";
 }
 
-// LOAD LESSONS AUTOMATICALLY
-loadLessons();
+// Filter Lessons
+function filterLessons(){
+    const search = document.getElementById("searchInput").value;
+    const filter = document.getElementById("categoryFilter").value;
+    renderLessons(filter, search);
+}
 
+// Scroll progress
+window.addEventListener("scroll", () => {
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollTop = window.scrollY;
+    const scrollPercent = (scrollTop / docHeight) * 100;
+    document.getElementById("progressBar").style.width = scrollPercent + "%";
+
+    // Highlight sidebar category
+    const categories = ["beginner","intermediate","advanced","tools","projects"];
+    let current = categories[0];
+    categories.forEach(cat => {
+        const elem = document.getElementById(cat);
+        if (elem && elem.getBoundingClientRect().top <= 150) {
+            current = cat;
+        }
+    });
+    document.querySelectorAll("#sidebar a").forEach(a=>{
+        a.classList.remove("active");
+        if(a.getAttribute("href") === "#"+current) a.classList.add("active");
+    });
+});
+
+// Initial render
+renderLessons();
 </script>
 </body>
 </html>
